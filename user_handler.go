@@ -80,5 +80,17 @@ func addUserHandler(c *gin.Context) {
 }
 
 func deleteUserHandler(c *gin.Context) {
-	// collection := client.Database("test").Collection("users")
+	email := c.Param("email")
+	collection := client.Database("test").Collection("users")
+
+	res, err := collection.DeleteOne(context.TODO(), bson.D{{"email", email}})
+	if err != nil {
+		log.Fatal(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "fail to delete"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"count": res.DeletedCount})
+
+	// json.NewEncoder(w).Encode(res.DeletedCount) // return number of
+
 }

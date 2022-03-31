@@ -40,6 +40,7 @@ func setupRouter() *gin.Engine {
 	router.GET("/users", getUsersHandler)
 	router.GET("/users/:email", getUserHandler)
 	router.POST("/users", addUserHandler)
+	router.DELETE("/users/:email", deleteUserHandler)
 
 	router.Run("localhost:8080")
 	return router
