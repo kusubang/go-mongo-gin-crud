@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"go-mongodb/configs"
+	"go-mongodb/routes"
 	"log"
 	"time"
 
@@ -31,25 +32,27 @@ func initMongo(uri string) *mongo.Client {
 
 func setupRouter() *gin.Engine {
 	router := gin.Default()
-	userCollection := configs.GetCollection(configs.DB, "users")
-	userHandler := NewUserHandler(userCollection)
-	router.GET("/users", userHandler.getUsersHandler)
-	router.GET("/users/:email", userHandler.getUserHandler)
-	router.POST("/users", userHandler.addUserHandler)
-	router.DELETE("/users/:email", userHandler.deleteUserHandler)
+	// userCollection := configs.GetCollection(configs.DB, "users")
+	// userHandler := NewUserHandler(userCollection)
+	// router.GET("/users", userHandler.getUsersHandler)
+	// router.GET("/users/:email", userHandler.getUserHandler)
+	// router.POST("/users", userHandler.addUserHandler)
+	// router.DELETE("/users/:email", userHandler.deleteUserHandler)
 
-	router.Run("localhost:8080")
+	// router.Run("localhost:8080")
 	return router
 }
 
 func main() {
-
+	router := gin.Default()
 	configs.ConnectDB()
 
+	routes.UserRoute(router)
+	router.Run("localhost:8080")
 	// client = initMongo(MONGO_URI)
 	// defer client.Disconnect(context.Background())
 
-	r := setupRouter()
-	r.Run()
+	// r := setupRouter()
+	// r.Run()
 
 }
