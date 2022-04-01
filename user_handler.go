@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"go-mongodb/models"
 	"log"
 	"net/http"
 
@@ -22,20 +23,20 @@ func (h *UserHandler) getUsersHandler(c *gin.Context) {
 	// collection := client.Database("test").Collection("users")
 	cursor, err := h.collection.Find(context.TODO(), bson.D{}, nil)
 
-	var users []*User
+	var users []models.User
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 
 	for cursor.Next(context.TODO()) {
-		var elem User
+		var elem models.User
 		err := cursor.Decode(&elem)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		users = append(users, &elem)
+		users = append(users, elem)
 	}
 
 	if err := cursor.Err(); err != nil {
@@ -44,12 +45,12 @@ func (h *UserHandler) getUsersHandler(c *gin.Context) {
 
 	cursor.Close(context.TODO())
 
-	c.IndentedJSON(http.StatusOK, users)
+	c.IndentedJSON(http.StatusOK, gin.H{"result": users})
 }
 
 func (h *UserHandler) getUserHandler(c *gin.Context) {
 	email := c.Param("email")
-	var user User
+	var user models.User
 	d := h.collection.FindOne(context.TODO(), gin.H{"email": email})
 
 	d.Decode(&user)
@@ -62,7 +63,7 @@ func (h *UserHandler) getUserHandler(c *gin.Context) {
 }
 
 func (h *UserHandler) addUserHandler(c *gin.Context) {
-	var user User
+	var user models.User
 
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
