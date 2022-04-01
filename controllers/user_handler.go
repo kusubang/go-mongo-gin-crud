@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"go-mongodb/models"
+	"go-mongodb/services"
 	"log"
 	"net/http"
 	"time"
@@ -22,35 +23,44 @@ func NewUserHandler(collection *mongo.Collection) *UserHandler {
 }
 
 func (h *UserHandler) GetAllUsers(c *gin.Context) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-
-	var users []models.User
-	defer cancel()
-
-	cursor, err := h.collection.Find(context.TODO(), bson.M{})
+	users, err := services.GetAllUsers(h.collection)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 
-	for cursor.Next(ctx) {
-		var aUser models.User
-		err := cursor.Decode(&aUser)
-		if err != nil {
-			log.Fatal(err)
-		}
+	c.IndentedJSON(http.StatusOK, users)
 
-		users = append(users, aUser)
-	}
+	// ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
-	if err := cursor.Err(); err != nil {
-		log.Fatal(err)
-	}
+	// var users []models.User
+	// defer cancel()
 
-	cursor.Close(context.TODO())
+	// cursor, err := h.collection.Find(context.TODO(), bson.M{})
 
-	c.IndentedJSON(http.StatusOK, gin.H{"result": users})
+	// if err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+	// 	return
+	// }
+
+	// for cursor.Next(ctx) {
+	// 	var aUser models.User
+	// 	err := cursor.Decode(&aUser)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+
+	// 	users = append(users, aUser)
+	// }
+
+	// if err := cursor.Err(); err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// cursor.Close(context.TODO())
+
+	// c.IndentedJSON(http.StatusOK, gin.H{"result": users})
 }
 
 func (h *UserHandler) GetAUser(c *gin.Context) {
