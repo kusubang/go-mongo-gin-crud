@@ -129,14 +129,24 @@ func (h UserHandler) EditAUser(c *gin.Context) {
 
 }
 
-func (h *UserHandler) DeleteUser(c *gin.Context) {
-	email := c.Param("email")
+func (h *UserHandler) DeleteAUser(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	userId := c.Param("userId")
+	log.Printf("Delete userId: %s", userId)
+	defer cancel()
 
-	res, err := h.collection.DeleteOne(context.TODO(), bson.D{{"email", email}})
+	objId, _ := primitive.ObjectIDFromHex(userId)
+
+	result, err := h.collection.DeleteOne(ctx, bson.M{"id": objId})
+
 	if err != nil {
-		log.Fatal(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "fail to delete"})
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"count": res.DeletedCount})
+
+	if result.DeletedCount < 1 {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "User with specified ID not found!"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "User is deleted successfully"})
 }
