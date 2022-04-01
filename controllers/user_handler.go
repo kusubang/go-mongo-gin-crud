@@ -97,6 +97,38 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+func (h UserHandler) EditAUser(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	userId := c.Param("userId")
+	var user models.User
+	defer cancel()
+	objId, _ := primitive.ObjectIDFromHex(userId)
+
+	if err := c.BindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+	update := bson.M{"email": user.Email, "name": user.Name}
+	result, err := h.collection.UpdateOne(ctx, bson.M{"id": objId}, bson.M{"$set": update})
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+		return
+	}
+	//get updated user details
+	var updatedUser models.User
+	if result.MatchedCount == 1 {
+		err := h.collection.FindOne(ctx, bson.M{"id": objId}).Decode(&updatedUser)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, updatedUser)
+
+}
+
 func (h *UserHandler) DeleteUser(c *gin.Context) {
 	email := c.Param("email")
 
