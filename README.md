@@ -5,8 +5,7 @@ Creating a CRUD app using Go and Gin and MongoDB
 ## 몽고DB 클라이언트 using docker
 몽고DB 가 `mongodb`로 실행 중인경우 다음과 같이 한다.
 ```
-# docker exec -it mongodb bash
-
+host$ docker exec -it mongodb bash
 ```
 컨테이너로 접속하고 나면 다음과 같이 한다.
 ```

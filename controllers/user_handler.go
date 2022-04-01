@@ -9,7 +9,6 @@ import (
 )
 
 type UserHandler struct {
-	// collection *mongo.Collection
 	service services.UserService
 }
 

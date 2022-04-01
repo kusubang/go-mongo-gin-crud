@@ -16,14 +16,6 @@ type UserServiceMongo struct {
 	collection *mongo.Collection
 }
 
-type UserService interface {
-	GetAllUsers() ([]models.User, error)
-	GetAUser(userId string) (models.User, error)
-	CreateAUser(user *models.User) (*models.User, error)
-	EditAUser(userId string, user *models.User) (*models.User, error)
-	DeleteAUser(userId string) error
-}
-
 func NewUserServiceMongo(collection *mongo.Collection) UserService {
 	return &UserServiceMongo{collection}
 }
