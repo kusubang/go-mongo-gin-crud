@@ -12,7 +12,7 @@ func UserRoute(router *gin.Engine) {
 	userHandler := controllers.NewUserHandler(userCollection)
 	router.POST("/users", userHandler.CreateUser)
 	router.PUT("/users/:userId", userHandler.EditAUser)
-	router.GET("/users", userHandler.GetUsers)
+	router.GET("/users", userHandler.GetAllUsers)
 	router.GET("/users/:userId", userHandler.GetAUser)
 	router.DELETE("/users/:userId", userHandler.DeleteAUser)
 }

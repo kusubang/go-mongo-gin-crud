@@ -21,24 +21,27 @@ func NewUserHandler(collection *mongo.Collection) *UserHandler {
 	return &UserHandler{collection}
 }
 
-func (h *UserHandler) GetUsers(c *gin.Context) {
-	// collection := client.Database("test").Collection("users")
-	cursor, err := h.collection.Find(context.TODO(), bson.D{}, nil)
+func (h *UserHandler) GetAllUsers(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 
 	var users []models.User
+	defer cancel()
+
+	cursor, err := h.collection.Find(context.TODO(), bson.M{})
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
 		return
 	}
 
-	for cursor.Next(context.TODO()) {
-		var elem models.User
-		err := cursor.Decode(&elem)
+	for cursor.Next(ctx) {
+		var aUser models.User
+		err := cursor.Decode(&aUser)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		users = append(users, elem)
+		users = append(users, aUser)
 	}
 
 	if err := cursor.Err(); err != nil {
